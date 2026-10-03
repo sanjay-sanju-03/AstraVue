@@ -1,4 +1,3 @@
-```markdown
 # 🚀 AstraVue
 
 > AI-powered visual intelligence for understanding space and Earth-observation imagery.
