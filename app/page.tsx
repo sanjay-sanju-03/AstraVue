@@ -167,7 +167,7 @@ export default function Home() {
       ctx.fillStyle = "#94a3b8";
       ctx.font = `${Math.max(11, footerH * 0.34)}px ui-monospace, Menlo, monospace`;
       ctx.fillText(
-        "SPACESNAP AI  ·  AI-INTERPRETED FEATURES  ·  BASED ON VISIBLE IMAGE EVIDENCE",
+        "ASTRAVUE  ·  AI-INTERPRETED FEATURES  ·  BASED ON VISIBLE IMAGE EVIDENCE",
         16,
         naturalH - footerH / 2
       );
@@ -177,7 +177,7 @@ export default function Home() {
         const href = URL.createObjectURL(b);
         const a = document.createElement("a");
         a.href = href;
-        a.download = "spacesnap-annotated.png";
+        a.download = "astravue-annotated.png";
         a.click();
         // Revoke on a later tick — revoking synchronously after click() can
         // cancel the download before the browser has read the blob.
@@ -406,9 +406,9 @@ function Footer() {
     >
       <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-9 sm:flex-row sm:items-center sm:justify-between md:px-8">
         <div>
-          <p className="text-sm font-semibold">SpaceSnap AI</p>
+          <p className="text-sm font-semibold">AstraVue</p>
           <p className="label-tech mt-1.5 !text-[10px]">
-            NASA Space Apps · AI visual intelligence for Earth imagery
+            AI visual intelligence for space &amp; Earth imagery
           </p>
         </div>
         <p className="label-tech !text-[10px]">

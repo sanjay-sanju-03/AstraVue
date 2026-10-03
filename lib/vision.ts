@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { AnalysisResultData } from "./schemas";
 
-const SYSTEM_PROMPT = `You are SpaceSnap AI, a visual analysis assistant for NASA and publicly available Earth/space imagery.
+const SYSTEM_PROMPT = `You are AstraVue, a visual analysis assistant for NASA and publicly available Earth/space imagery.
 
 Analyze the supplied image strictly from what is visibly present. Do not invent geographic locations, events, weather conditions, causes, dates, or scientific measurements that cannot be established from the image alone.
 

@@ -40,8 +40,8 @@ export function Navbar({ onAnalyze, analysisActive }: NavbarProps) {
             </svg>
           </div>
           <div className="leading-none">
-            <p className="text-[15px] font-semibold tracking-tight">SpaceSnap AI</p>
-            <p className="label-tech mt-1 !text-[10px]">NASA · Earth Observation</p>
+            <p className="text-[15px] font-semibold tracking-tight">AstraVue</p>
+            <p className="label-tech mt-1 !text-[10px]">AI Visual Intelligence</p>
           </div>
         </div>
 

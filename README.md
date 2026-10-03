@@ -1,105 +1,350 @@
-# SpaceSnap AI
+# 🚀 AstraVue
 
-> **Turn a NASA space image into an understandable visual story with AI-detected features, on-image labels, and a plain-language explanation.**
+> AI-powered visual intelligence for understanding space and Earth-observation imagery.
 
-Submission hashtag: `#evn-sp-ai` · Interest Group: Space · Challenge: **SpaceSnap AI — What's Happening in This Space Image?**
+[Live Demo](#getting-started) · [GitHub](https://github.com/sanjay-sanju-03/AstraVue) · [Demo Video](#demo)
 
-SpaceSnap AI is a multimodal computer-vision web application built for the NASA Space Apps Challenge pre-selection task. It analyzes NASA and publicly available Earth/space imagery, identifies visible features, places visual labels over the image, and generates a simple-language explanation grounded in the detected visual evidence.
+## 🌌 What is AstraVue?
 
----
+AstraVue is an AI-powered visual intelligence platform that analyzes NASA and publicly available Earth and space imagery, identifies important visible features, highlights them directly on the image, and explains the scene in simple language.
 
-## Approach (100–150 words)
+Instead of requiring users to understand complex scientific imagery, AstraVue transforms an image into an interactive visual report.
 
-SpaceSnap AI is a multimodal computer-vision tool that turns a NASA or Earth-observation image into a visual story. The user picks an image from the NASA Image and Video Library or uploads their own.
+## 🎯 The Problem
 
-The server sends the image bytes to a vision-capable model with a strict system prompt forbidding any inference not directly visible. The model returns 3–6 features, each with a label, description, normalized bounding box, and the visible evidence behind it. A Zod schema validates the response and coordinates are clamped to the 0–1000 model space; if fewer than three features come back, the request is retried once with a corrective prompt.
+Space and Earth-observation imagery contains valuable information, but understanding what is visible often requires specialized knowledge.
 
-The interface draws each feature as a corner-bracket annotation with a colour-coded label, and pairs it with a detection list and plain-language explanation. The annotated result exports as a PNG drawn on canvas. No database, no authentication, no image storage.
+Users may struggle to identify:
 
----
+- Cloud formations
+- Oceans, forests, and urban regions
+- Fires and atmospheric structures
+- Spacecraft and astronomical objects
+- Craters, ice, and landforms
 
-## Dataset / Image Source
+AstraVue addresses this gap by combining computer vision and natural-language explanation into one simple visual workflow.
 
-**Primary source: NASA's official public API — the [NASA Image and Video Library](https://images.nasa.gov/)** (`images-api.nasa.gov`).
+## 💡 Our Solution
 
-- Images are **searched live at runtime** via `GET /api/nasa/search`; nothing is bundled or stored.
-- Only imagery that is already public and NASA-published is used.
-- Image bytes reach the browser through `/api/proxy-image`, restricted to NASA hosts.
-- User uploads are processed in memory and never persisted.
-
-No training dataset is used — the model performs **zero-shot** visual detection, which is why bounding-box tightness can vary between runs.
-
-### Sample images used
-
-| NASA ID | Title | Features detected |
-|---|---|---|
-| `sl4-143-4707` | View of Skylab space station cluster in Earth orbit from CSM | SPACECRAFT · CLOUD FORMATIONS · EARTH'S CURVATURE |
-| `S39-23-020` | Aurora Australis, Sinuous Loop | AURORA · EARTH'S SURFACE · CLOUD FORMATIONS |
-| `GSFC_20171208_Archive_e000713` | NASA-NOAA's Suomi NPP Satellite Gets Colorful Look at Hurricane Blanca | CYCLONE EYE · DENSE CLOUD BANDS · CLOUD CLUSTER |
-
----
-
-## Features
-
-- **NASA Image and Video Library Integration:** Search and select directly from NASA's official image gallery.
-- **Multimodal AI Analysis:** Powered by OpenAI's `gpt-4o` vision model to detect 3–6 distinct, meaningful visible features (clouds, ocean, land, storms, etc.).
-- **Guaranteed 3+ Features:** If the first pass returns fewer than three, the request is retried once with a corrective prompt; if it still falls short the user gets a clear error rather than a misleading result.
-- **Visual Annotations:** Feature regions are outlined with corner brackets and labeled in place. Annotation geometry is locked to the image's intrinsic aspect ratio, so boxes stay aligned on non-square images, and label type keeps a fixed readable size at every viewport.
-- **Explainable AI:** Every feature carries a short description plus the visible evidence it was drawn from, alongside a plain-language explanation of the whole scene.
-- **Annotated PNG Export:** The result renders to canvas and downloads with boxes, labels, and an attribution footer.
-- **Mission-control UI:** Dark space-inspired design system built from CSS custom properties (no hard-coded colors), with a cinematic staged analysis loader and a calm error surface.
-- **Responsive & accessible:** Stacks to a single column on mobile with no horizontal overflow, keyboard-operable detection list, visible focus states, and full `prefers-reduced-motion` support.
-
-## Architecture & Tech Stack
-
-- **Framework:** Next.js 16.3 (App Router) + React 19 + TypeScript
-- **Styling:** Tailwind CSS v4 (CSS custom properties in `app/globals.css`)
-- **AI / Machine Learning:** OpenAI Node SDK (`openai`) with a vision-capable model
-- **Validation:** Zod schemas
-- **No Database / Authentication:** Fully stateless. Images are processed in memory and not intentionally persisted.
-
-### Project structure
-
-```
-app/
-  page.tsx                  UI state machine (home → input → loading → result)
-  globals.css               Design tokens, ambient backdrop, motion
-  api/analyze/route.ts      POST — validates image, returns 3–6 validated features
-  api/nasa/search/route.ts  GET — NASA Image and Video Library proxy
-  api/proxy-image/route.ts  GET — NASA-host-restricted image relay
-components/
-  navbar, hero              Landing
-  upload-zone, nasa-gallery Input
-  analysis-workspace        Result layout
-  image-viewer              Canvas + annotation + label overlay
-  detection-list            Feature list ↔ image sync
-  analysis-panels           Explanation + NASA attribution
-  status-states             Loading / error / empty
-lib/
-  vision.ts                 System prompt, vision call, retry
-  schemas.ts                Zod contracts
-  feature-theme.ts          Feature colours, numbering, image URL helper
+```text
+IMAGE
+  ↓
+AI VISUAL ANALYSIS
+  ↓
+FEATURE DETECTION
+  ↓
+VISUAL ANNOTATION
+  ↓
+SIMPLE-LANGUAGE EXPLANATION
 ```
 
-## Setup Instructions
+Users can select an image from the NASA Image and Video Library or upload their own compatible image. AstraVue identifies visible features, maps them to regions in the image, and produces an easy-to-understand explanation.
 
-1. **Clone the repository**
+## ✨ Key Features
+
+### 🛰️ NASA Image Explorer
+
+Search and select public imagery from the NASA Image and Video Library.
+
+### 🤖 AI Visual Analysis
+
+Analyze images with a multimodal OpenAI vision model.
+
+### 🔍 Feature Detection
+
+Identify 3–6 important visible features in an image, with descriptions and visual evidence.
+
+### 🎯 Visual Bounding Boxes
+
+Feature regions are highlighted directly on the source image and kept aligned across responsive layouts.
+
+### 🏷️ Intelligent Labels
+
+Every detected feature receives a numbered, colour-coded label that can be selected from the detection list.
+
+### 🧠 Simple Explanation
+
+Generate a plain-language explanation grounded only in visible image evidence.
+
+### 📥 Annotated Image Export
+
+Download the analyzed image with feature annotations and an attribution footer as PNG.
+
+### 🔗 Source Attribution
+
+Preserve NASA image titles, IDs, and original source links when imagery comes from NASA.
+
+### 📱 Responsive Interface
+
+Use the analysis workflow across desktop, tablet, and mobile layouts with keyboard-operable controls and reduced-motion support.
+
+## 🛰️ NASA Space Apps Challenge
+
+### Challenge
+
+**AI & Machine Learning — "What's Happening in This Space Image?"**
+
+### Submission Hashtag
+
+`#evn-sp-ai`
+
+### Challenge Mapping
+
+| Challenge requirement | AstraVue implementation |
+| --- | --- |
+| NASA / public image source | NASA Image and Video Library search and attribution |
+| AI/ML analysis | Multimodal vision model with structured JSON output |
+| Identify at least 3 features | Validation and retry flow for 3–6 visible features |
+| Highlight detected features | Responsive image annotations and bounding boxes |
+| Label features | Numbered labels and synchronized detection list |
+| Simple explanation | Evidence-grounded plain-language explanation |
+| Working interface | Next.js application with NASA search and upload flows |
+| Source code | TypeScript, React, and server routes in this repository |
+| Image export | Annotated PNG download from the analysis workspace |
+
+## 🔬 How AstraVue Works
+
+```text
+              NASA IMAGE LIBRARY
+                     │
+                     ▼
+              IMAGE SELECTION
+                     │
+             ┌───────┴────────┐
+             │                │
+       NASA IMAGE        USER UPLOAD
+             │                │
+             └───────┬────────┘
+                     ▼
+              IMAGE ANALYSIS
+                     │
+                     ▼
+              VISION AI MODEL
+                     │
+                     ▼
+            FEATURE DETECTION
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+     FEATURE DATA          BOUNDING BOX
+          │                     │
+          └──────────┬──────────┘
+                     ▼
+             VISUAL ANNOTATION
+                     │
+                     ▼
+             AI EXPLANATION
+                     │
+                     ▼
+            INTERACTIVE REPORT
+```
+
+## 🧠 AI Pipeline
+
+For each image, AstraVue asks the vision model to identify clearly visible features. Each feature contains a label, description, normalized coordinates, and evidence:
+
+```json
+{
+  "label": "Cloud Formation",
+  "description": "A large cloud formation is visible over the ocean.",
+  "box_2d": [120, 210, 490, 780],
+  "evidence": "Bright clustered cloud structures are visible in the upper-right region."
+}
+```
+
+The application validates the model response with Zod, clamps coordinates to the 0–1000 image space, and retries once when fewer than three usable features are returned.
+
+### AI Design Principles
+
+AstraVue is designed to:
+
+- Focus on visible evidence
+- Avoid inventing unseen objects or locations
+- Provide simple explanations
+- Avoid unsupported scientific claims
+- Communicate uncertainty when appropriate
+- Separate visual interpretation from scientific measurement
+
+## 🖥️ Product Walkthrough
+
+### 01 — Select an Image
+
+Choose imagery from NASA or upload a JPG, PNG, or WEBP image.
+
+### 02 — Analyze
+
+Start the AI visual analysis and wait for the validated result.
+
+### 03 — Detect Features
+
+AstraVue identifies visible features and highlights them directly on the image.
+
+### 04 — Understand the Image
+
+Read the detection descriptions, visible evidence, source information, and simple-language explanation.
+
+### 05 — Export the Result
+
+Download the annotated image as a PNG.
+
+## 🎥 Demo
+
+### Watch AstraVue in Action
+
+A hosted demo video will be linked here when available.
+
+```text
+Open AstraVue
+      ↓
+Select NASA Image or Upload Image
+      ↓
+Analyze Image
+      ↓
+AI Detects Features
+      ↓
+Visual Annotations
+      ↓
+AI Explanation
+      ↓
+Download Annotated Image
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS v4
+
+### AI
+
+- OpenAI Node SDK
+- Vision-capable model
+- Structured JSON response validation
+
+### Data
+
+- NASA Image and Video Library API
+- NASA-host-restricted image proxy
+
+### Validation
+
+- Zod
+
+### Development
+
+- Node.js
+- npm
+- Git
+- GitHub
+
+## 🏗️ System Architecture
+
+```text
+┌───────────────────────────────────────────┐
+│              AstraVue Frontend            │
+│        Next.js + React + TypeScript       │
+└───────────────────┬───────────────────────┘
+                    │
+                    ▼
+          ┌───────────────────┐
+          │  Analysis API     │
+          │  /api/analyze     │
+          └─────────┬─────────┘
+                    │
+                    ▼
+          ┌───────────────────┐
+          │   Vision AI       │
+          │      Model        │
+          └─────────┬─────────┘
+                    │
+                    ▼
+          ┌───────────────────┐
+          │ Structured JSON   │
+          │ Features + Boxes  │
+          └─────────┬─────────┘
+                    │
+                    ▼
+          ┌───────────────────┐
+          │ Image Annotations │
+          └─────────┬─────────┘
+                    │
+                    ▼
+          ┌───────────────────┐
+          │ Visual AI Report  │
+          └───────────────────┘
+
+       ┌──────────────────────────┐
+       │ NASA Image & Video API   │
+       └────────────┬─────────────┘
+                    │
+                    ▼
+              NASA Imagery
+```
+
+## 📂 Project Structure
+
+```text
+astravue/
+├── app/
+│   ├── api/
+│   │   ├── analyze/route.ts
+│   │   ├── nasa/search/route.ts
+│   │   └── proxy-image/route.ts
+│   ├── page.tsx
+│   ├── layout.tsx
+│   ├── globals.css
+│   └── icon.svg
+├── components/
+│   ├── navbar.tsx
+│   ├── hero.tsx
+│   ├── upload-zone.tsx
+│   ├── nasa-gallery.tsx
+│   ├── analysis-workspace.tsx
+│   ├── image-viewer.tsx
+│   ├── detection-list.tsx
+│   ├── analysis-panels.tsx
+│   └── status-states.tsx
+├── lib/
+│   ├── feature-theme.ts
+│   ├── schemas.ts
+│   └── vision.ts
+├── public/
+├── types/analysis.ts
+├── .env.example
+├── package.json
+└── README.md
+```
+
+## ⚙️ Getting Started
+
+### Prerequisites
+
+- Node.js
+- npm
+- An OpenAI API key
+
+### Installation
+
+1. Clone the repository:
+
    ```bash
-   git clone https://github.com/sanjay-sanju-03/SpaceSnap-AI.git
-   cd SpaceSnap-AI
+   git clone https://github.com/sanjay-sanju-03/AstraVue.git
+   cd AstraVue
    ```
 
-2. **Install dependencies**
+2. Install dependencies:
+
    ```bash
    npm install --legacy-peer-deps
    ```
 
-   > `--legacy-peer-deps` is required: `openai` declares an optional peer dependency on
-   > `zod@^3`, while this project uses `zod@4`. The project does not use zod through
-   > the `openai` client, so the conflict is safe to bypass.
+   The legacy peer-dependency flag is required because this project uses Zod 4 while the OpenAI package declares an optional Zod 3 peer dependency.
 
-3. **Configure Environment Variables**
-   Copy `.env.example` to `.env.local` and add your OpenAI API key:
+3. Create `.env.local` from `.env.example` and add your key:
+
    ```env
    OPENAI_API_KEY=your_openai_api_key_here
    OPENAI_MODEL=gpt-4o
@@ -107,56 +352,121 @@ lib/
    MAX_IMAGE_MB=8
    ```
 
-4. **Run the development server**
+   Never commit API keys to GitHub.
+
+4. Start the development server:
+
    ```bash
    npm run dev
    ```
-   Navigate to `http://localhost:3000`.
 
-## How It Works
+5. Open [http://localhost:3000](http://localhost:3000).
 
+## 🔐 Environment Variables
+
+| Variable | Purpose | Required |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Vision model access | Yes |
+| `OPENAI_MODEL` | Model name, defaulting to `gpt-4o` | No |
+| `NASA_API_BASE` | NASA Image API base URL | No |
+| `MAX_IMAGE_MB` | Maximum upload size in megabytes | No |
+
+## 🧪 Testing
+
+Run linting:
+
+```bash
+npm run lint
 ```
-Search NASA imagery or upload an image
-        ↓
-Server fetches the bytes and sends them to the vision model
-        ↓
-Model returns 3–6 features with bounding boxes + evidence
-        ↓
-Zod validation · coordinates clamped to 0–1000 · retried once if <3 features
-        ↓
-Corner-bracket annotations + colour-coded labels drawn on the image
-        ↓
-Detection list, visible evidence, plain-language explanation, NASA attribution
-        ↓
-Export annotated PNG
+
+Run the production build:
+
+```bash
+npm run build
 ```
 
-## Responsible Language
+Manual verification should cover both paths:
 
-The UI deliberately avoids implying more certainty than the model provides. It
-says **Detected**, **Visible**, and **AI Visual Explanation**, and is footed with
-*"Based on visible image evidence · AI interpretation"* — never *confirmed*,
-*verified*, or *scientifically proven*. No confidence percentages are shown,
-because the pipeline does not return a meaningful confidence value and none are
-fabricated.
+```text
+NASA image → Analyze → 3+ detections → Annotations → Explanation → Attribution → PNG export
+Local image → Upload → Analyze → Successful result
+```
 
-## Limitations
+## 📊 Example Output
 
-- Only uses 2D visible bounding boxes, not polygonal segmentation.
-- Relies on zero-shot visual detection; bounding box tightness may vary between runs.
-- Does not persist state across browser refreshes.
-- Images are relayed through `/api/proxy-image` (restricted to NASA hosts) because the NASA CDN is not directly reachable from every network. Uploaded images are never sent to that route.
+### Detected Features
 
-## Future Improvements
+```text
+01  SPACECRAFT
+02  CLOUD FORMATION
+03  EARTH'S HORIZON
+```
 
-- Multi-image temporal comparison (e.g., watching a hurricane evolve).
-- Polygonal or masked segmentation.
-- Per-feature confidence once the model can return a calibrated value.
+### AI Explanation
 
----
+> This image shows a spacecraft above Earth's atmosphere. Cloud formations are visible across the Earth's surface, while the curved horizon separates the planet from the surrounding darkness of space.
 
-## Built for NASA Space Apps Challenge 2026 Pre-Selection
+## 🌍 NASA Data Source
 
-**Challenge:** SpaceSnap AI — What's Happening in This Space Image?
-**Interest Group:** Space · **Hashtag:** `#evn-sp-ai`
-**Author:** Sanjay KP
+AstraVue uses the [NASA Image and Video Library](https://images.nasa.gov/). Images are searched live at runtime, and the application preserves available NASA titles, IDs, dates, and source links in the analysis view.
+
+User uploads are processed in memory and are not intentionally persisted.
+
+## 🛡️ Responsible AI
+
+AstraVue is designed for visual interpretation, not scientific measurement. AI results may contain errors, and bounding boxes are approximate visual regions.
+
+The system is specifically instructed not to infer exact geographic coordinates, temperatures, weather measurements, scientific measurements, or unsupported event classifications from pixels alone. Important information should be checked against authoritative scientific sources.
+
+## ⚠️ Limitations
+
+- Detection quality depends on image quality and composition.
+- Visually ambiguous features may be incorrectly identified.
+- Bounding boxes are approximate visual regions rather than segmentation masks.
+- AI explanations are interpretations rather than scientific conclusions.
+- State does not persist across a browser refresh.
+
+## 🔮 Future Scope
+
+- Temporal image comparison
+- Satellite change detection
+- Geospatial overlays
+- Earth-observation time-series analysis
+- Specialized Earth-science models
+- Multi-image analysis
+- Scientific metadata integration
+- Interactive mission datasets
+
+## 👥 Team
+
+### Team AstraVue
+
+| Member | Role |
+| --- | --- |
+| Sanjay K P | AI / Full-Stack Development |
+
+## 🏆 Submission
+
+**NASA Space Apps Challenge 2026 — Preselection**<br>
+**Challenge:** AI & Machine Learning — "What's Happening in This Space Image?"<br>
+**Project:** AstraVue<br>
+**Hashtag:** `#evn-sp-ai`
+
+## 🙏 Acknowledgements
+
+- NASA Image and Video Library
+- OpenAI
+- NASA Space Apps Challenge
+- µLearn Foundation
+
+## 📄 License
+
+This project was created as part of the NASA Space Apps Challenge. Add the chosen license here before public release.
+
+<p align="center">
+
+### 🚀 See the image. Understand the story.
+
+**AstraVue — AI-powered visual intelligence for space & Earth imagery.**
+
+</p>

@@ -49,7 +49,12 @@ export function Hero({ onAnalyze, onExplore }: HeroProps) {
       </div>
 
       <div className="relative z-10 mx-auto max-w-3xl text-center">
-        <p className="label-tech !text-primary/80">NASA × AI Visual Intelligence</p>
+        <p className="label-tech !text-primary/80">AstraVue</p>
+        <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.22em] text-muted">
+          AI Visual Intelligence
+          <span className="mx-2 text-faint">·</span>
+          Space &amp; Earth Imagery
+        </p>
 
         <h1 className="text-gradient-hero mt-7 text-[clamp(2.5rem,7.2vw,5.25rem)] font-semibold leading-[0.98] tracking-[-0.03em]">
           Understand what&apos;s
@@ -58,9 +63,9 @@ export function Hero({ onAnalyze, onExplore }: HeroProps) {
         </h1>
 
         <p className="mx-auto mt-7 max-w-xl text-[17px] leading-relaxed text-muted">
-          Turn NASA and Earth-observation imagery into clear, visual AI insights —
-          detected features, spatial annotations, and a plain-language reading of
-          the scene.
+          AstraVue analyzes NASA and Earth-observation imagery, detects visible
+          features, highlights them on the image, and explains the scene in
+          simple language.
         </p>
 
         <div className="mt-11 flex flex-col items-center justify-center gap-3 sm:flex-row">
