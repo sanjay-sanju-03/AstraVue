@@ -2,7 +2,7 @@
 
 > AI-powered visual intelligence for understanding space and Earth-observation imagery.
 
-[Live Demo](#getting-started) · [GitHub](https://github.com/sanjay-sanju-03/AstraVue) · [Demo Video](#demo)
+[Live Demo](https://astra-vue.vercel.app/) · [GitHub](https://github.com/sanjay-sanju-03/AstraVue)
 
 ## 🌌 What is AstraVue?
 
@@ -186,12 +186,6 @@ Read the detection descriptions, visible evidence, source information, and simpl
 ### 05 — Export the Result
 
 Download the annotated image as a PNG.
-
-## 🎥 Demo
-
-### Watch AstraVue in Action
-
-A hosted demo video will be linked here when available.
 
 ```text
 Open AstraVue
@@ -463,21 +457,6 @@ The system is specifically instructed not to infer exact geographic coordinates,
 - Multi-image analysis
 - Scientific metadata integration
 - Interactive mission datasets
-
-## 👥 Team
-
-### Team AstraVue
-
-| Member | Role |
-| --- | --- |
-| Sanjay K P | AI / Full-Stack Development |
-
-## 🏆 Submission
-
-**NASA Space Apps Challenge 2026 — Preselection**<br>
-**Challenge:** AI & Machine Learning — "What's Happening in This Space Image?"<br>
-**Project:** AstraVue<br>
-**Hashtag:** `#evn-sp-ai`
 
 ## 🙏 Acknowledgements
 
