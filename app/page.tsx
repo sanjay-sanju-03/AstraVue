@@ -14,14 +14,26 @@ import { apiUrl } from "@/lib/api";
 
 type AppState = "home" | "input" | "loading" | "error" | "result";
 
+type PendingSelection = {
+  previewUrl: string;
+  title: string;
+  nasaId?: string;
+  date?: string;
+  sourceType: "nasa" | "upload";
+  formData: FormData;
+};
+
 const MAX_MB = parseInt(process.env.NEXT_PUBLIC_MAX_IMAGE_MB || "8", 10);
 
 function mapNasaItem(item: Record<string, unknown>): NasaItem {
   const data = (item.data as Record<string, unknown>[])?.[0] ?? {};
   const links = (item.links as Record<string, unknown>[])?.[0];
+  const nasaId = typeof data.nasa_id === "string" && data.nasa_id ? data.nasa_id : null;
+  const title = typeof data.title === "string" && data.title ? data.title : "NASA image";
   return {
-    id: String(data.nasa_id ?? item.href ?? Math.random()),
-    title: String(data.title ?? "Untitled NASA image"),
+    id: nasaId ?? String(item.href ?? title),
+    nasaId,
+    title,
     date: data.date_created ? String(data.date_created).slice(0, 10) : "",
     thumb: (links?.href as string) ?? null,
     raw: item,
@@ -34,6 +46,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"nasa" | "upload">("nasa");
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [pendingSelection, setPendingSelection] = useState<PendingSelection | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultData | null>(null);
   const [sourceData, setSourceData] = useState<AnalysisSource | null>(null);
   const [modelUsed, setModelUsed] = useState("");
@@ -56,7 +69,9 @@ export default function Home() {
       const res = await fetch(apiUrl(`/api/nasa/search?q=${encodeURIComponent(q)}`));
       const data = await res.json();
       const items = (data.collection?.items ?? []) as Record<string, unknown>[];
-      setNasaItems(items.map(mapNasaItem));
+      const uniqueItems = new Map<string, NasaItem>();
+      items.map(mapNasaItem).forEach((item) => uniqueItems.set(item.id, item));
+      setNasaItems(Array.from(uniqueItems.values()));
     } catch {
       setNasaItems([]);
     } finally {
@@ -82,19 +97,26 @@ export default function Home() {
     }
   };
 
-  const handleNasaSelect = (item: Record<string, unknown>) => {
-    const imgUrl = (item.links as Record<string, unknown>[])?.[0]?.href as string;
+  const handleNasaSelect = (item: NasaItem) => {
+    const imgUrl = (item.raw.links as Record<string, unknown>[])?.[0]?.href as string;
     if (!imgUrl) return;
     setImagePreview(imgUrl);
 
-    const data = (item.data as Record<string, unknown>[])?.[0];
     const formData = new FormData();
     formData.append("imgUrl", imgUrl);
     formData.append("sourceType", "nasa");
-    formData.append("sourceTitle", (data?.title as string) || "");
+    formData.append("sourceTitle", item.title);
     formData.append("sourceUrl", imgUrl);
-    formData.append("nasaId", (data?.nasa_id as string) || "");
-    void runAnalysis(formData);
+    if (item.nasaId) formData.append("nasaId", item.nasaId);
+    setSourceData({ type: "nasa", title: item.title, url: imgUrl, nasaId: item.id });
+    setPendingSelection({
+      previewUrl: imgUrl,
+      title: item.title,
+      nasaId: item.nasaId ?? undefined,
+      date: item.date,
+      sourceType: "nasa",
+      formData,
+    });
   };
 
   const handleFile = (file: File) => {
@@ -104,11 +126,34 @@ export default function Home() {
       setAppState("error");
       return;
     }
-    setImagePreview(URL.createObjectURL(file));
+    if (pendingSelection?.sourceType === "upload") {
+      URL.revokeObjectURL(pendingSelection.previewUrl);
+    }
+    const previewUrl = URL.createObjectURL(file);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("sourceType", "upload");
-    void runAnalysis(formData);
+    setImagePreview(previewUrl);
+    setSourceData({ type: "upload", title: file.name });
+    setPendingSelection({
+      previewUrl,
+      title: file.name,
+      sourceType: "upload",
+      formData,
+    });
+  };
+
+  const analyzeSelection = () => {
+    if (pendingSelection) void runAnalysis(pendingSelection.formData);
+  };
+
+  const clearSelection = () => {
+    if (pendingSelection?.sourceType === "upload") {
+      URL.revokeObjectURL(pendingSelection.previewUrl);
+    }
+    setPendingSelection(null);
+    setImagePreview(null);
+    setSourceData(null);
   };
 
   const handleDownload = useCallback(async () => {
@@ -193,6 +238,7 @@ export default function Home() {
   /* ---------------- navigation ---------------- */
 
   const openInput = () => {
+    if (appState === "result") clearSelection();
     setAppState("input");
     if (nasaItems.length === 0) void searchNasa(searchQuery);
   };
@@ -200,8 +246,7 @@ export default function Home() {
   const reset = () => {
     setAppState("home");
     setAnalysisResult(null);
-    setImagePreview(null);
-    setSourceData(null);
+    clearSelection();
     setErrorMsg("");
   };
 
@@ -233,49 +278,72 @@ export default function Home() {
         )}
 
         {appState === "input" && (
-          <section id="explore" className="mx-auto max-w-[1600px] px-4 pb-20 md:px-8">
-            <div className="pt-14">
+          <section id="explore" className="mx-auto max-w-[1120px] px-5 pb-20 md:px-8">
+            <div className="pt-12 md:pt-16">
               <header className="mb-8">
-                <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                  Start your analysis
+                <p className="label-tech text-primary">Your next view</p>
+                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.025em] md:text-5xl">
+                  Choose an image to begin.
                 </h1>
-                <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted">
-                  Upload an Earth or space image, or explore imagery from the NASA
-                  Image and Video Library.
+                <p className="mt-4 max-w-xl text-base leading-7 text-muted">
+                  Start with a NASA image or upload a JPG, PNG, or WEBP from your computer.
                 </p>
               </header>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
                 <ModeCard
                   active={activeTab === "nasa"}
-                  title="NASA Library"
-                  subtitle="Explore NASA imagery"
-                  onClick={() => setActiveTab("nasa")}
+                  title="NASA LIBRARY"
+                  subtitle="Explore NASA space & Earth imagery"
+                  action="Explore NASA"
+                  onClick={() => {
+                    clearSelection();
+                    setActiveTab("nasa");
+                  }}
                 />
                 <ModeCard
                   active={activeTab === "upload"}
-                  title="Upload Image"
-                  subtitle="JPG / PNG / WEBP"
-                  onClick={() => setActiveTab("upload")}
+                  title="UPLOAD IMAGE"
+                  subtitle="Analyze an image from your computer"
+                  action="Upload image · JPG · PNG · WEBP"
+                  onClick={() => {
+                    clearSelection();
+                    setActiveTab("upload");
+                  }}
                 />
               </div>
 
               <div className="mt-8">
                 {activeTab === "nasa" ? (
-                  <NasaGallery
-                    query={searchQuery}
-                    onQueryChange={setSearchQuery}
-                    onSearch={searchNasa}
-                    items={nasaItems}
-                    isSearching={isSearching}
-                    onSelect={handleNasaSelect}
-                  />
+                  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+                    <NasaGallery
+                      query={searchQuery}
+                      onQueryChange={setSearchQuery}
+                      onSearch={searchNasa}
+                      items={nasaItems}
+                      isSearching={isSearching}
+                      selectedId={pendingSelection?.sourceType === "nasa" ? pendingSelection.nasaId ?? null : null}
+                      onSelect={handleNasaSelect}
+                    />
+                    <SelectionPreview
+                      selection={pendingSelection}
+                      onAnalyze={analyzeSelection}
+                      onClear={clearSelection}
+                    />
+                  </div>
                 ) : (
-                  <div className="max-w-2xl">
-                    <UploadZone onFile={handleFile} maxMb={MAX_MB} />
-                    <p className="label-tech mt-4 !text-[10px]">
-                      Images are processed in memory and not stored
-                    </p>
+                  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+                    <div>
+                      <UploadZone onFile={handleFile} maxMb={MAX_MB} />
+                      <p className="mt-4 text-xs text-muted">
+                        Privacy: images are processed in memory and not stored.
+                      </p>
+                    </div>
+                    <SelectionPreview
+                      selection={pendingSelection}
+                      onAnalyze={analyzeSelection}
+                      onClear={clearSelection}
+                    />
                   </div>
                 )}
               </div>
@@ -284,19 +352,19 @@ export default function Home() {
         )}
 
         {appState === "loading" && (
-          <section className="px-4 py-20">
-            <AnalysisLoading />
+          <section className="px-5 py-20 md:px-8">
+            <AnalysisLoading imageSrc={imagePreview} />
           </section>
         )}
 
         {appState === "error" && (
-          <section className="px-4 py-20">
+          <section className="px-5 py-20 md:px-8">
             <AnalysisError message={errorMsg} onRetry={openInput} />
           </section>
         )}
 
         {appState === "result" && analysisResult && (
-          <section className="pt-10">
+          <section className="pb-20 pt-10">
             <AnalysisWorkspace
               imageSrc={imagePreview}
               analysis={analysisResult}
@@ -315,7 +383,7 @@ export default function Home() {
         )}
 
         {appState === "home" && (
-          <section id="how-it-works" className="mx-auto max-w-[1600px] px-4 pb-24 md:px-8">
+          <section id="how-it-works" className="mx-auto max-w-[1120px] px-5 pb-24 md:px-8">
             <HowItWorks />
           </section>
         )}
@@ -330,11 +398,13 @@ function ModeCard({
   active,
   title,
   subtitle,
+  action,
   onClick,
 }: {
   active: boolean;
   title: string;
   subtitle: string;
+  action: string;
   onClick: () => void;
 }) {
   return (
@@ -342,20 +412,77 @@ function ModeCard({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`card-hover rounded-[20px] border p-6 text-left transition-colors ${
+      className={`card-hover rounded-xl border p-5 text-left transition-colors ${
         active
-          ? "border-primary/55 bg-primary/[0.07]"
+          ? "border-primary bg-primary/[0.06]"
           : "border-panel-border bg-panel hover:border-panel-border-strong"
       }`}
     >
-      <p className="label-tech">{title}</p>
-      <p className="mt-2.5 text-sm font-medium text-foreground">{subtitle}</p>
-      <p
-        className={`label-tech mt-4 !text-[10px] ${active ? "!text-primary" : "!text-faint"}`}
-      >
-        {active ? "● Selected" : "○ Select"}
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-xs font-semibold tracking-[0.08em] text-primary">{title}</p>
+        {active && <span className="text-xs font-semibold text-primary">✓ Selected</span>}
+      </div>
+      <p className="mt-5 max-w-[16rem] text-base font-semibold leading-6 text-foreground">{subtitle}</p>
+      <p className={`mt-6 text-xs font-semibold ${active ? "text-primary" : "text-muted"}`}>
+        {action} →
       </p>
     </button>
+  );
+}
+
+function SelectionPreview({
+  selection,
+  onAnalyze,
+  onClear,
+}: {
+  selection: PendingSelection | null;
+  onAnalyze: () => void;
+  onClear: () => void;
+}) {
+  const displayUrl = toDisplayUrl(selection?.previewUrl ?? null);
+
+  return (
+    <aside className="h-fit rounded-xl border border-panel-border bg-panel p-5 lg:sticky lg:top-24">
+      <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Selected image</p>
+      {selection && displayUrl ? (
+        <>
+          <div className="mt-4 aspect-[4/3] overflow-hidden rounded-lg bg-[#e9ece7]">
+            <img src={displayUrl} alt={selection.title} className="h-full w-full object-cover" />
+          </div>
+          <h2 className="mt-4 line-clamp-3 text-base font-semibold leading-6">{selection.title}</h2>
+          <p className="mt-2 text-xs text-muted">
+            {selection.sourceType === "nasa" ? "NASA Image and Video Library" : "User-provided image"}
+          </p>
+          {selection.nasaId && (
+            <p className="value-tech mt-2 text-[11px] text-faint">NASA ID · {selection.nasaId}</p>
+          )}
+          {selection.date && <p className="mt-1 text-xs text-faint">{selection.date}</p>}
+          <div className="mt-5 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={onAnalyze}
+              className="pressable rounded-md bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-[#0b625c]"
+            >
+              Analyze image →
+            </button>
+            <button
+              type="button"
+              onClick={onClear}
+              className="pressable rounded-md border border-panel-border-strong px-4 py-2.5 text-xs font-semibold text-muted hover:border-primary hover:text-primary"
+            >
+              Change image
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="mt-4 rounded-lg border border-dashed border-panel-border-strong px-5 py-10 text-center">
+          <p className="text-sm font-semibold">Choose an image to begin</p>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Select a NASA image or upload your own to see a preview here.
+          </p>
+        </div>
+      )}
+    </aside>
   );
 }
 
@@ -385,16 +512,30 @@ function HowItWorks() {
 
   return (
     <>
-      <h2 className="label-tech">How it works</h2>
-      <ol className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-[20px] border border-panel-border bg-panel-border/40 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.map((s) => (
-          <li key={s.n} className="bg-panel p-6">
-            <span className="value-tech text-xs font-semibold text-primary">{s.n}</span>
-            <h3 className="mt-3 text-sm font-semibold">{s.t}</h3>
-            <p className="mt-2.5 text-[13px] leading-relaxed text-muted">{s.d}</p>
-          </li>
-        ))}
-      </ol>
+      <h2 className="text-3xl font-semibold tracking-[-0.02em]">How it works</h2>
+      <div className="relative mt-8">
+        <div
+          aria-hidden="true"
+          className="absolute left-[12.5%] right-[12.5%] top-3 hidden h-px bg-panel-border lg:block"
+        />
+        <ol className="relative grid grid-cols-1 gap-8 lg:grid-cols-4">
+          {steps.map((s, index) => (
+            <li key={s.n} className="relative pr-4">
+              <span className="relative z-10 grid h-6 w-6 place-items-center rounded-full border border-primary bg-background value-tech text-[11px] font-semibold text-primary">
+                {s.n}
+              </span>
+            <h3 className="mt-3 text-base font-semibold">{s.t}</h3>
+            <p className="mt-2.5 text-sm leading-6 text-muted">{s.d}</p>
+              {index < steps.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-3 top-8 h-[calc(100%+2rem)] w-px bg-panel-border lg:hidden"
+                />
+              )}
+            </li>
+          ))}
+        </ol>
+      </div>
     </>
   );
 }
@@ -403,17 +544,17 @@ function Footer() {
   return (
     <footer
       id="about"
-      className="border-t border-panel-border bg-panel/40"
+      className="border-t border-panel-border bg-panel/50"
     >
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-9 sm:flex-row sm:items-center sm:justify-between md:px-8">
+      <div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-5 py-9 sm:flex-row sm:items-center sm:justify-between md:px-8">
         <div>
           <p className="text-sm font-semibold">AstraVue</p>
-          <p className="label-tech mt-1.5 !text-[10px]">
+          <p className="mt-1.5 text-sm text-muted">
             AI visual intelligence for space &amp; Earth imagery
           </p>
         </div>
-        <p className="label-tech !text-[10px]">
-          Images processed in memory · Not stored
+        <p className="text-xs text-muted">
+          Your images are processed in memory and not stored.
         </p>
       </div>
     </footer>

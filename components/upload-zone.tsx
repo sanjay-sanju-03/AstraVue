@@ -30,14 +30,14 @@ export function UploadZone({ onFile, maxMb }: UploadZoneProps) {
         setIsDragging(false);
         accept(e.dataTransfer.files?.[0]);
       }}
-      className={`rounded-[20px] border border-dashed p-10 text-center transition-all duration-200 md:p-14 ${
+      className={`rounded-xl border border-dashed p-8 text-center transition-all duration-200 md:p-10 ${
         isDragging
           ? "border-primary bg-primary/[0.07]"
           : "border-panel-border-strong bg-panel hover:border-primary/40"
       }`}
     >
       <div
-        className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary"
+        className="mx-auto grid h-11 w-11 place-items-center rounded-lg bg-primary/10 text-primary"
         aria-hidden="true"
       >
         <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -46,7 +46,7 @@ export function UploadZone({ onFile, maxMb }: UploadZoneProps) {
       </div>
 
       <p className="mt-5 text-sm font-semibold">
-        Drop an image here, or{" "}
+        Drop an image here or{" "}
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
@@ -55,7 +55,7 @@ export function UploadZone({ onFile, maxMb }: UploadZoneProps) {
           browse
         </button>
       </p>
-      <p className="label-tech mt-3 !text-[10px]">JPG · PNG · WEBP — max {maxMb} MB</p>
+      <p className="mt-3 text-xs text-muted">JPG, PNG, or WEBP · up to {maxMb} MB</p>
 
       <input
         ref={inputRef}

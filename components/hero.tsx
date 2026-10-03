@@ -7,94 +7,49 @@ interface HeroProps {
 
 export function Hero({ onAnalyze, onExplore }: HeroProps) {
   return (
-    <section className="relative mx-auto max-w-[1600px] px-4 py-20 md:px-8 md:py-32">
-      {/* Orbital line graphic — restrained, purely decorative */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-8 -z-0 h-[520px] w-[820px] -translate-x-1/2 opacity-[0.5]"
-      >
-        <svg viewBox="0 0 820 520" className="animate-drift h-full w-full">
-          <ellipse
-            cx="410"
-            cy="260"
-            rx="380"
-            ry="150"
-            fill="none"
-            stroke="currentColor"
-            className="text-primary/12"
-            strokeWidth="1"
-          />
-          <ellipse
-            cx="410"
-            cy="260"
-            rx="300"
-            ry="118"
-            fill="none"
-            stroke="currentColor"
-            className="text-primary/10"
-            strokeWidth="1"
-          />
-          <ellipse
-            cx="410"
-            cy="260"
-            rx="215"
-            ry="85"
-            fill="none"
-            stroke="currentColor"
-            className="text-accent/10"
-            strokeWidth="1"
-          />
-          <circle cx="410" cy="260" r="3" className="fill-primary/40" />
-        </svg>
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-3xl text-center">
-        <p className="label-tech !text-primary/80">AstraVue</p>
-        <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.22em] text-muted">
-          AI Visual Intelligence
-          <span className="mx-2 text-faint">·</span>
-          Space &amp; Earth Imagery
+    <section className="mx-auto max-w-[1120px] px-5 pb-20 pt-16 md:px-8 md:pb-28 md:pt-24">
+      <div className="max-w-3xl">
+        <p className="text-sm font-semibold tracking-[0.08em] text-primary">ASTRAVUE</p>
+        <p className="mt-3 text-sm font-medium text-muted">
+          AI visual intelligence for space &amp; Earth imagery
         </p>
-
-        <h1 className="text-gradient-hero mt-7 text-[clamp(2.5rem,7.2vw,5.25rem)] font-semibold leading-[0.98] tracking-[-0.03em]">
-          Understand what&apos;s
-          <br />
-          happening in space.
+        <h1 className="text-gradient-hero mt-7 max-w-2xl text-5xl font-semibold leading-[1.02] tracking-[-0.035em] md:text-7xl">
+          Understand the story inside every image.
         </h1>
 
-        <p className="mx-auto mt-7 max-w-xl text-[17px] leading-relaxed text-muted">
-          AstraVue analyzes NASA and Earth-observation imagery, detects visible
-          features, highlights them on the image, and explains the scene in
-          simple language.
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-muted md:text-xl">
+          Explore NASA imagery or upload your own. AstraVue detects visible
+          features, highlights them directly on the image, and explains what
+          you&apos;re seeing in plain language.
         </p>
 
-        <div className="mt-11 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={onAnalyze}
-            className="pressable w-full rounded-lg bg-primary px-7 py-3.5 text-sm font-semibold text-[#04121f] hover:bg-[#7dd3fc] sm:w-auto"
+            className="pressable w-full whitespace-nowrap rounded-md bg-primary px-6 py-3.5 text-sm font-semibold text-white hover:bg-[#0b625c] sm:w-auto"
           >
-            Analyze an Image
+            Start with an image
           </button>
           <button
             type="button"
             onClick={onExplore}
-            className="pressable w-full rounded-lg border border-panel-border-strong px-7 py-3.5 text-sm font-semibold text-foreground hover:border-primary/45 hover:bg-primary/5 sm:w-auto"
+            className="pressable w-full whitespace-nowrap rounded-md border border-panel-border-strong bg-panel px-6 py-3.5 text-sm font-semibold text-foreground hover:border-primary hover:bg-primary/[0.04] sm:w-auto"
           >
-            Explore NASA Imagery
+            Browse NASA imagery
           </button>
         </div>
 
-        {/* Capability strip */}
-        <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-xl border border-panel-border bg-panel-border/40">
+        <dl className="mt-16 grid max-w-2xl grid-cols-3 border-y border-panel-border py-5">
           {[
-            { k: "3–6", v: "Features detected" },
-            { k: "<1s", v: "Typical analysis" },
-            { k: "0", v: "Images stored" },
+            { k: "3–6", v: "visible features" },
+            { k: "NASA", v: "imagery used" },
+            { k: "0", v: "images stored", support: "Privacy-first processing" },
           ].map((s) => (
-            <div key={s.v} className="bg-panel px-3 py-5">
+            <div key={s.v} className="border-r border-panel-border px-4 last:border-r-0 first:pl-0">
               <dd className="value-tech text-lg font-semibold text-foreground">{s.k}</dd>
-              <dt className="label-tech mt-1.5 !text-[10px]">{s.v}</dt>
+              <dt className="mt-1 text-xs text-muted">{s.v}</dt>
+              {s.support && <p className="mt-1 text-[11px] text-faint">{s.support}</p>}
             </div>
           ))}
         </dl>

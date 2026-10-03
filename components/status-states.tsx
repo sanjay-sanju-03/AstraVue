@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toDisplayUrl } from "@/lib/feature-theme";
 
 const STAGES = [
   "Receiving image…",
@@ -10,8 +11,9 @@ const STAGES = [
 ];
 
 /** Cinematic staged scan. Uses a timer for stage text and a CSS sweep for the line. */
-export function AnalysisLoading() {
+export function AnalysisLoading({ imageSrc }: { imageSrc: string | null }) {
   const [stage, setStage] = useState(0);
+  const displayUrl = toDisplayUrl(imageSrc);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -24,31 +26,26 @@ export function AnalysisLoading() {
     <div
       role="status"
       aria-live="polite"
-      className="mx-auto w-full max-w-2xl rounded-[20px] border border-panel-border bg-panel"
+      className="mx-auto w-full max-w-2xl rounded-xl border border-panel-border bg-panel"
     >
-      {/* Scan surface */}
-      <div className="relative grid aspect-[16/9] place-items-center overflow-hidden rounded-t-[20px] bg-[#04070e]">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
-            backgroundSize: "34px 34px",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-16 animate-scan bg-gradient-to-b from-transparent via-primary/22 to-transparent"
-        />
+      <div className="relative grid min-h-56 place-items-center overflow-hidden rounded-t-xl bg-[#e9ece7] px-6 py-12">
+        {displayUrl && (
+          <img
+            src={displayUrl}
+            alt="Selected image being analyzed"
+            className="absolute inset-0 h-full w-full object-cover opacity-25"
+          />
+        )}
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-16 animate-scan bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
         <div className="relative z-10 text-center">
-          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-panel-border border-t-primary" />
-          <p className="label-tech mt-5 !text-primary">Analyzing image</p>
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-panel-border border-t-primary" />
+          <p className="mt-4 text-sm font-semibold text-foreground">Looking closely at your image</p>
+          <p className="mt-1 text-sm text-muted">This usually takes a few seconds.</p>
         </div>
       </div>
 
       {/* Stage readout */}
-      <div className="px-6 py-5">
+      <div className="px-6 py-6">
         <ol className="space-y-2.5">
           {STAGES.map((s, i) => (
             <li
@@ -89,7 +86,7 @@ export function AnalysisError({
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-[20px] border border-panel-border bg-panel px-7 py-12 text-center">
+    <div className="mx-auto w-full max-w-xl rounded-xl border border-panel-border bg-panel px-7 py-12 text-center">
       <div
         aria-hidden="true"
         className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-error/25 bg-error/10 text-error"
@@ -100,7 +97,7 @@ export function AnalysisError({
         </svg>
       </div>
 
-      <h2 className="label-tech mt-6 !text-foreground">Analysis interrupted</h2>
+      <h2 className="mt-6 text-xl font-semibold">We couldn&apos;t finish that</h2>
       <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted">
         {message || "We couldn't analyze this image. Please try again."}
       </p>
@@ -108,7 +105,7 @@ export function AnalysisError({
       <button
         type="button"
         onClick={onRetry}
-        className="pressable mt-7 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-[#04121f] hover:bg-[#7dd3fc]"
+        className="pressable mt-7 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-[#0b625c]"
       >
         Try again
       </button>
@@ -118,7 +115,7 @@ export function AnalysisError({
           type="button"
           onClick={() => setShowDetails((v) => !v)}
           aria-expanded={showDetails}
-          className="label-tech !text-[10px] transition-colors hover:!text-muted"
+          className="text-xs text-muted transition-colors hover:text-primary"
         >
           {showDetails ? "Hide technical details" : "View technical details"}
         </button>
@@ -146,7 +143,7 @@ export function SelectionEmptyState() {
           <path d="M4 17l5-4 4 3 3-2 4 3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-      <h2 className="label-tech mt-6">Select an image to begin</h2>
+      <h2 className="mt-6 text-lg font-semibold">Choose an image to begin</h2>
       <p className="mx-auto mt-3 max-w-sm text-sm text-muted">
         Choose a NASA image or upload your own Earth or space photograph.
       </p>

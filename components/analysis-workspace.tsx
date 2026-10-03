@@ -38,38 +38,34 @@ export function AnalysisWorkspace(props: WorkspaceProps) {
   } = props;
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 md:px-8">
-      {/* Page heading for assistive tech; the summary bar is the visual anchor. */}
-      <h1 className="sr-only">
-        Analysis result — {analysis.features.length} features detected
-      </h1>
-
-      {/* Result summary bar */}
-      <div className="flex flex-col gap-4 rounded-[20px] border border-panel-border bg-panel px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+      <div className="flex flex-col gap-5 rounded-xl border border-panel-border bg-panel px-5 py-5 sm:flex-row sm:items-end sm:justify-between md:px-6">
         <div className="flex items-center gap-4">
-          <span className="value-tech text-2xl font-semibold text-primary">
+          <span className="value-tech text-3xl font-semibold text-primary">
             {String(analysis.features.length).padStart(2, "0")}
           </span>
           <div>
-            <p className="text-sm font-semibold">Features detected</p>
-            <p className="label-tech mt-1 !text-[10px]">
-              AI identified visible structures and patterns
+            <h1 className="text-2xl font-semibold tracking-[-0.02em]">
+              {analysis.features.length} Features Detected
+            </h1>
+            <p className="mt-1 text-sm text-muted">
+              AI visual analysis of this {source?.type === "nasa" ? "NASA" : "uploaded"} image
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {modelUsed && (
-            <span className="hidden label-tech !text-[10px] sm:inline">
-              Model <span className="text-muted">{modelUsed}</span>
+            <span className="hidden text-xs font-medium uppercase tracking-[0.08em] text-muted sm:inline">
+              AI analysis · <span className="text-foreground">{modelUsed}</span>
             </span>
           )}
           <button
             type="button"
             onClick={onDownload}
             disabled={isDownloading}
-            className="pressable flex-1 rounded-lg bg-primary px-5 py-2.5 text-[13px] font-semibold text-[#04121f] hover:bg-[#7dd3fc] disabled:opacity-50 sm:flex-none"
+            className="pressable flex-1 rounded-md bg-primary px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-[#0b625c] disabled:opacity-50 sm:flex-none"
           >
-            {isDownloading ? "Saving…" : "Download annotated PNG"}
+            {isDownloading ? "Saving…" : "↓ Download Annotated PNG"}
           </button>
         </div>
       </div>
@@ -83,8 +79,6 @@ export function AnalysisWorkspace(props: WorkspaceProps) {
             analysis={analysis}
             hoveredFeature={hoveredFeature}
             clickedFeature={clickedFeature}
-            isDownloading={isDownloading}
-            onDownload={onDownload}
             imageRef={imageRef}
           />
         </div>
@@ -106,7 +100,7 @@ export function AnalysisWorkspace(props: WorkspaceProps) {
         <button
           type="button"
           onClick={onReset}
-          className="pressable rounded-lg border border-panel-border-strong px-5 py-2.5 text-[13px] font-semibold text-muted hover:border-primary/45 hover:text-primary"
+          className="pressable rounded-md border border-panel-border-strong bg-panel px-5 py-2.5 text-[13px] font-semibold text-muted hover:border-primary hover:text-primary"
         >
           ← Analyze another image
         </button>

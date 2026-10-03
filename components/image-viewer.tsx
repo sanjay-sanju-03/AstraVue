@@ -9,19 +9,13 @@ interface ImageViewerProps {
   analysis: AnalysisResultData;
   hoveredFeature: number | null;
   clickedFeature: number | null;
-  isDownloading: boolean;
-  onDownload: () => void;
   imageRef: React.RefObject<HTMLImageElement | null>;
 }
 
 /**
- * Corner-bracket annotation overlay.
- *
- * The SVG viewBox is fixed at 0 0 1000 1000 with preserveAspectRatio="none",
- * which stretches to the element's box. Because the wrapper is sized from the
- * image's own intrinsic aspect ratio (see the aspectRatio style below), the
- * 0-1000 model space maps exactly onto the rendered pixels — so boxes stay
- * locked to the image instead of drifting on non-square sources.
+ * Full-frame annotation overlay. The fixed 0-1000 viewBox keeps model boxes
+ * aligned with the image while the dark under-stroke keeps each frame visible
+ * over both bright and dark imagery.
  */
 function AnnotationOverlay({
   analysis,
@@ -47,44 +41,33 @@ function AnnotationOverlay({
         const color = featureColor(i);
         const w = Math.max(xmax - xmin, 1);
         const h = Math.max(ymax - ymin, 1);
-        const arm = Math.min(Math.max(w, h) * 0.22, 30);
-        // Labels are drawn in a second, screen-space layer (see AnnotationLabels)
-        // so their type size does not shrink with the image on narrow viewports.
 
         return (
-          <g key={i} opacity={isActive ? 1 : 0.82}>
-            {/* Faint region fill on hover only */}
-            {isActive && (
-              <rect
-                x={xmin}
-                y={ymin}
-                width={w}
-                height={h}
-                fill={color}
-                opacity="0.1"
-              />
-            )}
-
-            {/* Corner brackets */}
-            <g
-              stroke={color}
-              strokeWidth={isActive ? 5 : 3}
+          <g key={i}>
+            <rect
+              x={xmin}
+              y={ymin}
+              width={w}
+              height={h}
+              fill={color}
+              fillOpacity={isActive ? 0.16 : 0.05}
+              stroke="#111827"
+              strokeOpacity="0.82"
+              strokeWidth={isActive ? 9 : 7}
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
+            <rect
+              x={xmin}
+              y={ymin}
+              width={w}
+              height={h}
               fill="none"
-              strokeLinecap="round"
-            >
-              <path
-                d={`M ${xmin} ${ymin + arm} L ${xmin} ${ymin} L ${xmin + arm} ${ymin}`}
-              />
-              <path
-                d={`M ${xmax - arm} ${ymin} L ${xmax} ${ymin} L ${xmax} ${ymin + arm}`}
-              />
-              <path
-                d={`M ${xmax} ${ymax - arm} L ${xmax} ${ymax} L ${xmax - arm} ${ymax}`}
-              />
-              <path
-                d={`M ${xmin + arm} ${ymax} L ${xmin} ${ymax} L ${xmin} ${ymax - arm}`}
-              />
-            </g>
+              stroke={color}
+              strokeWidth={isActive ? 4.5 : 3}
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
           </g>
         );
       })}
@@ -179,8 +162,6 @@ export function ImageViewer({
   analysis,
   hoveredFeature,
   clickedFeature,
-  isDownloading,
-  onDownload,
   imageRef,
 }: ImageViewerProps) {
   const [aspect, setAspect] = useState<number | null>(null);
@@ -244,13 +225,15 @@ export function ImageViewer({
   return (
     <figure
       ref={frameRef}
-      className="overflow-hidden rounded-[20px] border border-panel-border bg-panel"
+      className="overflow-hidden rounded-xl border border-panel-border bg-panel"
     >
-      {/* Top HUD bar */}
       <div className="flex items-center justify-between gap-3 border-b border-panel-border px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="animate-blink h-1.5 w-1.5 rounded-full bg-primary" />
-          <span className="label-tech !text-muted">Live Analysis</span>
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          <div>
+            <p className="text-sm font-semibold">AI Visual Analysis</p>
+            <p className="mt-0.5 text-xs text-muted">{analysis.features.length} visible features identified</p>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <IconButton label="Toggle fullscreen" onClick={toggleFullscreen}>
@@ -258,21 +241,13 @@ export function ImageViewer({
               <path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" strokeLinecap="round" />
             </svg>
           </IconButton>
-          <button
-            type="button"
-            onClick={onDownload}
-            disabled={isDownloading || loadFailed}
-            className="pressable rounded-md border border-panel-border-strong px-3 py-1.5 text-[11px] font-semibold text-muted hover:border-primary/50 hover:text-foreground disabled:opacity-40"
-          >
-            {isDownloading ? "Saving…" : "Download PNG"}
-          </button>
         </div>
       </div>
 
       {/* Canvas */}
       <div
         ref={canvasRef}
-        className="relative w-full bg-[#04070e]"
+        className="relative w-full bg-[#e9ece7]"
         style={aspect ? { aspectRatio: String(aspect) } : { minHeight: 260 }}
       >
         {loadFailed ? (
@@ -327,12 +302,10 @@ export function ImageViewer({
         )}
       </div>
 
-      {/* Bottom HUD bar */}
       <figcaption className="flex items-center justify-between gap-3 border-t border-panel-border px-4 py-3">
-        <span className="label-tech">NASA Image Library</span>
-        <span className="value-tech text-[11px] text-faint">
-          {analysis.features.length.toString().padStart(2, "0")} features ·{" "}
-          {analysis.image_summary ? "AI interpreted" : "AI analyzed"}
+        <span className="text-xs text-muted">NASA Image and Video Library</span>
+        <span className="text-xs text-muted">
+          {analysis.features.length} features detected
         </span>
       </figcaption>
     </figure>

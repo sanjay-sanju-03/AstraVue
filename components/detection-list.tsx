@@ -21,13 +21,13 @@ export function DetectionList({
   const total = analysis.features.length;
 
   return (
-    <section aria-labelledby="detections-heading" className="rounded-[20px] border border-panel-border bg-panel">
+    <section aria-labelledby="detections-heading" className="rounded-xl border border-panel-border bg-panel">
       <header className="flex items-center justify-between border-b border-panel-border px-5 py-4">
-        <h2 id="detections-heading" className="label-tech !text-muted">
-          AI Detection
+        <h2 id="detections-heading" className="text-sm font-semibold text-foreground">
+          What we found
         </h2>
         <span className="value-tech text-[11px] text-primary">
-          {String(total).padStart(2, "0")} features identified
+          {total} features detected
         </span>
       </header>
 
