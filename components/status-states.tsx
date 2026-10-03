@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { toDisplayUrl } from "@/lib/feature-theme";
 
 const STAGES = [
-  "Receiving image…",
-  "Examining visible structures…",
-  "Identifying features…",
-  "Generating explanation…",
+  "Receiving image",
+  "Examining visible structures",
+  "Identifying visible features",
+  "Generating explanation",
 ];
 
-/** Cinematic staged scan. Uses a timer for stage text and a CSS sweep for the line. */
+/** Presents the application's observable analysis workflow without inventing a percentage. */
 export function AnalysisLoading({ imageSrc }: { imageSrc: string | null }) {
   const [stage, setStage] = useState(0);
   const displayUrl = toDisplayUrl(imageSrc);
@@ -26,37 +26,61 @@ export function AnalysisLoading({ imageSrc }: { imageSrc: string | null }) {
     <div
       role="status"
       aria-live="polite"
-      className="mx-auto w-full max-w-2xl rounded-xl border border-panel-border bg-panel"
+      className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl border border-panel-border bg-panel"
     >
-      <div className="relative grid min-h-56 place-items-center overflow-hidden rounded-t-xl bg-[#e9ece7] px-6 py-12">
-        {displayUrl && (
-          <img
-            src={displayUrl}
-            alt="Selected image being analyzed"
-            className="absolute inset-0 h-full w-full object-cover opacity-25"
+      <div className="px-6 pb-5 pt-7 text-center md:px-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+          AI visual analysis
+        </p>
+        <h1 className="mt-3 text-2xl font-semibold tracking-[-0.02em] md:text-3xl">
+          Looking closely at your image.
+        </h1>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted md:text-base">
+          AstraVue is examining visible structures, identifying features, and preparing a plain-language explanation.
+        </p>
+      </div>
+
+      <div className="px-4 md:px-8">
+        <div className="relative aspect-[16/9] overflow-hidden rounded-lg border border-white/10 bg-[#07121a]">
+          {displayUrl ? (
+            <img
+              src={displayUrl}
+              alt="NASA image being analyzed"
+              className="absolute inset-0 h-full w-full object-contain opacity-90"
+            />
+          ) : (
+            <div className="absolute inset-0 grid place-items-center text-sm text-white/60">
+              Preparing image
+            </div>
+          )}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-px animate-scan bg-primary shadow-[0_0_14px_2px_rgba(45,212,191,0.65)]"
           />
-        )}
-        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-16 animate-scan bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
-        <div className="relative z-10 text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-panel-border border-t-primary" />
-          <p className="mt-4 text-sm font-semibold text-foreground">Looking closely at your image</p>
-          <p className="mt-1 text-sm text-muted">This usually takes a few seconds.</p>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         </div>
       </div>
 
-      {/* Stage readout */}
-      <div className="px-6 py-6">
-        <ol className="space-y-2.5">
+      <div className="px-6 py-7 md:px-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+          Analysis pipeline
+        </p>
+        <ol className="mt-4 grid gap-3 sm:grid-cols-2">
           {STAGES.map((s, i) => (
             <li
               key={s}
-              className={`flex items-center gap-3 text-[13px] transition-colors duration-300 ${
-                i === stage ? "text-foreground" : i < stage ? "text-faint" : "text-faint/45"
+              aria-current={i === stage ? "step" : undefined}
+              className={`flex items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors duration-300 ${
+                i === stage
+                  ? "border-primary/40 bg-primary/[0.06] text-foreground"
+                  : i < stage
+                    ? "border-success/25 bg-success/[0.04] text-muted"
+                    : "border-panel-border text-faint"
               }`}
             >
               <span
                 aria-hidden="true"
-                className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border text-[8px] ${
+                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-[10px] font-semibold ${
                   i < stage
                     ? "border-success/50 bg-success/15 text-success"
                     : i === stage
@@ -64,12 +88,15 @@ export function AnalysisLoading({ imageSrc }: { imageSrc: string | null }) {
                       : "border-panel-border"
                 }`}
               >
-                {i < stage ? "✓" : i === stage ? "•" : ""}
+                {i < stage ? "✓" : i === stage ? "●" : String(i + 1).padStart(2, "0")}
               </span>
               {s}
             </li>
           ))}
         </ol>
+        <p className="mt-6 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
+          Vision model · Processing
+        </p>
       </div>
     </div>
   );

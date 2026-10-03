@@ -170,6 +170,8 @@ export default function Home() {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
+      const footerH = Math.max(34, naturalH / 16);
+
       // Re-fetch through the proxy (or the local blob:) so the canvas stays untainted.
       const drawUrl = toDisplayUrl(imagePreview);
       if (!drawUrl) return;
@@ -194,7 +196,9 @@ export default function Home() {
         const label = `${featureNumber(i)} ${feature.label.toUpperCase()}`;
         const textW = ctx.measureText(label).width + 22;
         const labelH = fontSize + 14;
-        const labelY = ymin > 60 ? y - labelH - 6 : Math.min(y + h + 6, naturalH - labelH);
+        const labelY = ymin > 60
+          ? Math.max(6, y - labelH - 6)
+          : Math.min(y + h + 6, naturalH - footerH - labelH - 6);
 
         ctx.fillStyle = "rgba(5, 9, 20, 0.85)";
         ctx.fillRect(x, labelY, textW, labelH);
@@ -207,7 +211,6 @@ export default function Home() {
       });
 
       // Attribution footer
-      const footerH = Math.max(34, naturalH / 16);
       ctx.fillStyle = "rgba(5, 9, 20, 0.88)";
       ctx.fillRect(0, naturalH - footerH, naturalW, footerH);
       ctx.fillStyle = "#94a3b8";
