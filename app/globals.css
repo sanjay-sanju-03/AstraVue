@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+/* ============================================================
+   SPACE SNAP AI — DESIGN TOKENS
+   Single source of truth. Components must not hard-code colours.
+   ============================================================ */
+@theme {
+  --color-background: #050914;
+  --color-foreground: #f8fafc;
+
+  --color-panel: #09111f;
+  --color-panel-elevated: #0d1728;
+  --color-panel-border: rgba(255, 255, 255, 0.08);
+  --color-panel-border-strong: rgba(255, 255, 255, 0.14);
+
+  --color-primary: #38bdf8;
+  --color-secondary: #60a5fa;
+  --color-accent: #fbbf24;
+
+  --color-success: #34d399;
+  --color-error: #f87171;
+
+  --color-muted: #94a3b8;
+  --color-faint: #64748b;
+
+  /* Category colours for detected features */
+  --color-cat-cyan: #38bdf8;
+  --color-cat-blue: #60a5fa;
+  --color-cat-amber: #fbbf24;
+  --color-cat-green: #34d399;
+  --color-cat-red: #f87171;
+  --color-cat-purple: #a78bfa;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+
+  --radius-panel: 20px;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  border-color: var(--color-panel-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Ambient space backdrop (pure CSS, no assets) ---------- */
+.space-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -8%, rgba(56, 189, 248, 0.11), transparent 62%),
+    radial-gradient(ellipse 55% 45% at 88% 8%, rgba(167, 139, 250, 0.06), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 56px 56px, 56px 56px;
+}
+
+/* Sparse deterministic starfield — cheaper than particles, no JS. */
+.space-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 18% 24%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.2px 1.2px at 72% 16%, rgba(255, 255, 255, 0.42), transparent),
+    radial-gradient(1.6px 1.6px at 42% 62%, rgba(255, 255, 255, 0.38), transparent),
+    radial-gradient(1.1px 1.1px at 86% 71%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.3px 1.3px at 8% 82%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1.2px 1.2px at 60% 38%, rgba(255, 255, 255, 0.35), transparent);
+  background-repeat: no-repeat;
+  opacity: 0.75;
+}
+
+/* ---------- Typographic helpers ---------- */
+.label-tech {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.value-tech {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.text-gradient-hero {
+  background: linear-gradient(180deg, #ffffff 30%, #93a7c4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Motion ---------- */
+@keyframes drift-slow {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(0, -14px, 0) scale(1.02); }
+}
+@keyframes scan-sweep {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.96); opacity: 0.55; }
+  70%  { transform: scale(1.06); opacity: 0; }
+  100% { transform: scale(1.06); opacity: 0; }
+}
+@keyframes fade-rise {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.28; }
+}
+
+.animate-drift    { animation: drift-slow 22s ease-in-out infinite; }
+.animate-scan     { animation: scan-sweep 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.animate-pulse-r  { animation: pulse-ring 2.8s ease-out infinite; }
+.animate-fade-rise{ animation: fade-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-orbit    { animation: orbit-spin 34s linear infinite; transform-origin: center; }
+.animate-blink    { animation: blink-dot 2.2s ease-in-out infinite; }
+
+/* ---------- Interaction ---------- */
+.pressable {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 180ms ease, border-color 180ms ease, opacity 180ms ease;
+}
+.pressable:hover:not(:disabled) { transform: translateY(-1px); }
+.pressable:active:not(:disabled) { transform: translateY(0); }
+
+.card-hover {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease;
+}
+.card-hover:hover { transform: scale(1.012); border-color: var(--color-panel-border-strong); }
+
+/* Visible, consistent focus for keyboard users only. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Scrollbars tuned to the dark shell. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #24334d transparent;
+}
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: #24334d;
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: #33456180; background-clip: content-box; }
+
+/* Honour the OS reduced-motion setting everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .pressable:hover:not(:disabled),
+  .card-hover:hover { transform: none; }
+}
