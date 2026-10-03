@@ -350,7 +350,9 @@ astravue/
    OPENAI_MODEL=gpt-4o
    NASA_API_BASE=https://images-api.nasa.gov
    MAX_IMAGE_MB=8
-   ```
+      NEXT_PUBLIC_API_URL=
+      FRONTEND_URL=http://localhost:3000
+      ```
 
    Never commit API keys to GitHub.
 
@@ -370,6 +372,31 @@ astravue/
 | `OPENAI_MODEL` | Model name, defaulting to `gpt-4o` | No |
 | `NASA_API_BASE` | NASA Image API base URL | No |
 | `MAX_IMAGE_MB` | Maximum upload size in megabytes | No |
+| `NEXT_PUBLIC_API_URL` | Public Render API URL used by the Vercel frontend | Production |
+| `FRONTEND_URL` | Allowed Vercel origin for Render CORS | Production |
+
+## 🚀 Vercel + Render Deployment
+
+This repository includes `vercel.json` for the Next.js frontend and `render.yaml` for the Express API service.
+
+### Render backend
+
+1. Create a Render Blueprint from this repository, or create a Node web service manually.
+2. Use `npm install --legacy-peer-deps && npm run backend:build` as the build command.
+3. Use `npm run backend:start` as the start command.
+4. Add `OPENAI_API_KEY` as a secret environment variable.
+5. Set `FRONTEND_URL` to the deployed Vercel origin.
+6. Confirm the service responds at `/health`.
+
+The backend serves `/api/analyze`, `/api/nasa/search`, and `/api/proxy-image`.
+
+### Vercel frontend
+
+1. Import the repository into Vercel as a Next.js project.
+2. Set `NEXT_PUBLIC_API_URL` to the Render service URL, without a trailing slash.
+3. Deploy after the Render service is available.
+
+For local development, leave `NEXT_PUBLIC_API_URL` empty to use the existing Next.js API routes. The separate Render service is started locally with `npm run backend:dev`.
 
 ## 🧪 Testing
 

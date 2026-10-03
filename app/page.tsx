@@ -10,6 +10,7 @@ import { AnalysisError, AnalysisLoading } from "@/components/status-states";
 import { AnalysisResultData } from "@/lib/schemas";
 import { AnalysisSource } from "@/types/analysis";
 import { featureColor, featureNumber, toDisplayUrl } from "@/lib/feature-theme";
+import { apiUrl } from "@/lib/api";
 
 type AppState = "home" | "input" | "loading" | "error" | "result";
 
@@ -52,7 +53,7 @@ export default function Home() {
   const searchNasa = async (q: string) => {
     setIsSearching(true);
     try {
-      const res = await fetch(`/api/nasa/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(apiUrl(`/api/nasa/search?q=${encodeURIComponent(q)}`));
       const data = await res.json();
       const items = (data.collection?.items ?? []) as Record<string, unknown>[];
       setNasaItems(items.map(mapNasaItem));
@@ -68,7 +69,7 @@ export default function Home() {
     setHoveredFeature(null);
     setClickedFeature(null);
     try {
-      const res = await fetch("/api/analyze", { method: "POST", body: formData });
+      const res = await fetch(apiUrl("/api/analyze"), { method: "POST", body: formData });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error?.message || "Analysis failed");
       setAnalysisResult(data.analysis);

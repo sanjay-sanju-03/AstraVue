@@ -1,4 +1,5 @@
-import { AnalysisResultData, FeatureData } from "@/lib/schemas";
+import { AnalysisResultData, FeatureData } from "./schemas";
+import { apiUrl } from "./api";
 
 /**
  * Fixed category palette. Index-stable so a given feature keeps the same colour
@@ -29,7 +30,7 @@ export function featureNumber(index: number): string {
 export function toDisplayUrl(src: string | null): string | null {
   if (!src) return null;
   if (!src.startsWith("http://") && !src.startsWith("https://")) return src;
-  return `/api/proxy-image?url=${encodeURIComponent(src)}`;
+  return apiUrl(`/api/proxy-image?url=${encodeURIComponent(src)}`);
 }
 
 export type { AnalysisResultData, FeatureData };

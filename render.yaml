@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: astravue-api
+    runtime: node
+    plan: free
+    buildCommand: npm install --legacy-peer-deps && npm run backend:build
+    startCommand: npm run backend:start
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
+      - key: NASA_API_BASE
+        value: https://images-api.nasa.gov
+      - key: MAX_IMAGE_MB
+        value: "8"
+      - key: FRONTEND_URL
+        sync: false
