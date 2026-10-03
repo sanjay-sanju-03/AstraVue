@@ -40,28 +40,6 @@ AI Explanation
 
 ---
 
-## 🛰️ NASA Space Apps Challenge
-
-**Challenge:** AI & Machine Learning — *What's Happening in This Space Image?*
-
-**Submission Hashtag:** `#evn-sp-ai`
-
-### Challenge Mapping
-
-| Requirement | AstraVue |
-|---|---|
-| NASA / public image | ✅ |
-| AI/ML analysis | ✅ |
-| 3+ visible features | ✅ |
-| Feature highlighting | ✅ |
-| Feature labels | ✅ |
-| Simple explanation | ✅ |
-| Working interface | ✅ |
-| Source code | ✅ |
-| Image export | ✅ |
-
----
-
 ## 🛠️ Tech Stack
 
 - **Frontend:** Next.js, React, TypeScript, Tailwind CSS
